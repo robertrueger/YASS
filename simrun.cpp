@@ -17,29 +17,18 @@
  * along with YASS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
-
-#include "options.hpp"
-
-using namespace std;
+#include "simrun.hpp"
 
 
-int main( const int argc, const char* argv[] )
+
+void simrun_const( const Options& opts )
 {
-  cout << "    ==========================================" << endl;
-  cout << "    | YASS - Yet Another Sandpile Simulation |" << endl;
-  cout << "    ==========================================" << endl;
-  cout << endl;
 
-  const Options& opts = read_options( argc, argv );
+}
 
-  if ( opts["mode"].as<simmode_t>() == MODE_CONST ) {
-    cout << ":: Running constant density simulation" << endl;
 
-  } else { /* MODE_DROP */
-    cout << ":: Running dropping sand simulation" << endl;
 
-  }
+void simrun_drop(  const Options& opts )
+{
 
-  return 0;
 }

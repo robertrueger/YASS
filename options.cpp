@@ -86,9 +86,9 @@ Options read_options( const int argc, const char* argv[] )
 
   // define option groups for cli and jobfile
   po::options_description cmdline_options;
-  cmdline_options.add( clionly ).add( constset ).add( dropset );
+  cmdline_options.add( clionly ).add( allset ).add( constset ).add( dropset );
   po::options_description jobfile_options;
-  jobfile_options.add( constset ).add( dropset );
+  jobfile_options.add( allset ).add( constset ).add( dropset );
 
 
   try {
@@ -176,6 +176,38 @@ Options read_options( const int argc, const char* argv[] )
     cerr << "Error in program options: " << e.what() << endl;
     exit( 1 );
   }
+
+
+  // check for logical errors in the settings
+  try {
+
+    if ( vm["mode"].as<simmode_t>() == MODE_CONST ) {
+
+      if ( vm.count( "density" ) == 0 ) {
+        throw logic_error( "no density specified in constant density mode" );
+      }
+
+      if ( vm["density"].as<float>() < 0.f ) {
+        throw logic_error( "density must be positive" );
+      }
+
+    } else { /* MODE_DROP */
+
+      if ( vm.count( "mcs-equil" ) == 0 ) {
+        throw logic_error( "number of MCS for equilibration unspecified" );
+      }
+
+      if ( vm.count( "mcs-measure" ) == 0 ) {
+        throw logic_error( "number of MCS for measurements unspecified" );
+      }
+
+    }
+
+  } catch ( const logic_error& e ) {
+    cerr << "Logical error in settings: " << e.what() << endl;
+    exit( 1 );
+  }
+
 
   return vm;
 }
