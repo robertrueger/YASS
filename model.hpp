@@ -17,19 +17,40 @@
  * along with YASS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "simrun.hpp"
+#ifndef MODEL_H_INCLUDED
+#define MODEL_H_INCLUDED
 
-#include "model.hpp"
+#include <vector>
+#include <random>
+#include <iosfwd>
 
 
-void simrun_const( const Options& opts )
+class SandpileModel final
 {
+    friend std::ostream& operator<<( std::ostream& out, const SandpileModel& m );
 
-}
+  private:
 
+    unsigned int size;
+    bool pbc;
 
+    std::vector<unsigned int> data;
 
-void simrun_drop(  const Options& opts )
-{
+    std::mt19937 rng;
 
-}
+  public:
+
+    SandpileModel( unsigned int size_init, bool pbc_init, unsigned int rng_seed );
+
+    unsigned int  operator()( unsigned int x, unsigned int y ) const;
+    unsigned int& operator()( unsigned int x, unsigned int y );
+
+    void add_grain();
+    bool topple();
+
+    float get_density() const;
+};
+
+std::ostream& operator<<( std::ostream& out, const SandpileModel& m );
+
+#endif // MODEL_H_INCLUDED
