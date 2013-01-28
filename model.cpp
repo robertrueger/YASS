@@ -21,6 +21,7 @@
 
 #include <assert.h>
 #include <numeric>
+#include <algorithm>
 #include <iostream>
 using namespace std;
 
@@ -36,7 +37,7 @@ unsigned int SandpileModel::operator()( unsigned int x, unsigned int y ) const
 {
   assert( y < size );
   assert( x < size );
-  return data.at( size * y + x );
+  return data[ size * y + x ];
 }
 
 
@@ -44,7 +45,7 @@ unsigned int& SandpileModel::operator()( unsigned int x, unsigned int y )
 {
   assert( y < size );
   assert( x < size );
-  return data.at( size * y + x );
+  return data[ size * y + x ];
 }
 
 
@@ -74,43 +75,43 @@ bool SandpileModel::topple()
     unsigned int x = *ts % size;
     unsigned int y = *ts / size;
 
-    while ( *ts >= 4 ) {
-      *ts -= 4;
+    while ( data[ *ts ] >= 4 ) {
+      data[ *ts ] -= 4;
 
       // bottom neighbor
       if ( y == 0 ) {
         if ( pbc ) {
-          operator()( x, size - 1 ) -= 1;
+          operator()( x, size - 1 ) += 1;
         }
       } else {
-        operator()( x, y - 1 ) -= 1;
+        operator()( x, y - 1 ) += 1;
       }
 
       // right neighbor
       if ( x == size - 1 ) {
         if ( pbc ) {
-          operator()( 0, y ) -= 1;
+          operator()( 0, y ) += 1;
         }
       } else {
-        operator()( x + 1, y ) -= 1;
+        operator()( x + 1, y ) += 1;
       }
 
       // top neighbor
       if ( y == size - 1 ) {
         if ( pbc ) {
-          operator()( x, 0 ) -= 1;
+          operator()( x, 0 ) += 1;
         }
       } else {
-        operator()( x, y + 1 ) -= 1;
+        operator()( x, y + 1 ) += 1;
       }
 
       // left neighbor
       if ( x == 0 ) {
         if ( pbc ) {
-          operator()( size - 1, y ) -= 1;
+          operator()( size - 1, y ) += 1;
         }
       } else {
-        operator()( x - 1, y ) -= 1;
+        operator()( x - 1, y ) += 1;
       }
     }
   }
@@ -124,6 +125,18 @@ float SandpileModel::get_density() const
   return
     static_cast<float>( accumulate( data.begin(), data.end(), 0 ) ) /
     static_cast<float>( size * size );
+}
+
+
+float SandpileModel::get_active_site_density() const
+{
+  return
+    static_cast<float>(
+      count_if(
+        data.begin(), data.end(),
+        []( unsigned int h ) { return h >= 4; }
+      )
+    ) / static_cast<float>( size * size );
 }
 
 

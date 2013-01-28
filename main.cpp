@@ -20,6 +20,7 @@
 #include <iostream>
 
 #include "options.hpp"
+#include "simrun.hpp"
 
 using namespace std;
 
@@ -34,11 +35,12 @@ int main( const int argc, const char* argv[] )
   const Options& opts = read_options( argc, argv );
 
   if ( opts["mode"].as<simmode_t>() == MODE_CONST ) {
-    cout << ":: Running constant density simulation" << endl;
+    cout << ":: Running constant density simulation" << endl << endl;
+    simrun_const( opts );
 
-  } else { /* MODE_DROP */
-    cout << ":: Running dropping sand simulation" << endl;
-
+  } else { // MODE_DROP
+    cout << ":: Running dropping sand simulation" << endl << endl;
+    simrun_drop( opts );
   }
 
   return 0;

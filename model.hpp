@@ -49,6 +49,7 @@ class SandpileModel final
     bool topple();
 
     float get_density() const;
+    float get_active_site_density() const;
 };
 
 std::ostream& operator<<( std::ostream& out, const SandpileModel& m );

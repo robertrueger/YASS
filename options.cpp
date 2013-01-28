@@ -60,7 +60,19 @@ Options read_options( const int argc, const char* argv[] )
 
   ( "size,s",
     po::value<unsigned int>()->required(),
-    "size of the simulated lattice" );
+    "size of the simulated lattice" )
+
+  ( "seed,S",
+    po::value<unsigned int>(),
+    "random number generator seed" )
+
+  ( "mcs-equil,E",
+    po::value<unsigned int>()->required(),
+    "number of Monte Carlo steps for equilibration" )
+
+  ( "mcs-measure,M",
+    po::value<unsigned int>()->required(),
+    "number of measurement bins" );
 
   po::options_description constset( "settings for constant density simulations" );
   constset.add_options()
@@ -69,26 +81,12 @@ Options read_options( const int argc, const char* argv[] )
     po::value<float>(),
     "constant sand density" );
 
-  po::options_description dropset( "settings for dropping sand simulations" );
-  dropset.add_options()
-
-  ( "mcs-equil,E",
-    po::value<unsigned int>(),
-    "number of Monte Carlo steps for equilibration" )
-
-  ( "mcs-measure,M",
-    po::value<unsigned int>(),
-    "number of measurement bins" )
-
-  ( "seed,S",
-    po::value<unsigned int>(),
-    "random number generator seed" );
 
   // define option groups for cli and jobfile
   po::options_description cmdline_options;
-  cmdline_options.add( clionly ).add( allset ).add( constset ).add( dropset );
+  cmdline_options.add( clionly ).add( allset ).add( constset );
   po::options_description jobfile_options;
-  jobfile_options.add( allset ).add( constset ).add( dropset );
+  jobfile_options.add( allset ).add( constset );
 
 
   try {
@@ -191,23 +189,12 @@ Options read_options( const int argc, const char* argv[] )
         throw logic_error( "density must be positive" );
       }
 
-    } else { /* MODE_DROP */
-
-      if ( vm.count( "mcs-equil" ) == 0 ) {
-        throw logic_error( "number of MCS for equilibration unspecified" );
-      }
-
-      if ( vm.count( "mcs-measure" ) == 0 ) {
-        throw logic_error( "number of MCS for measurements unspecified" );
-      }
-
     }
 
   } catch ( const logic_error& e ) {
     cerr << "Logical error in settings: " << e.what() << endl;
     exit( 1 );
   }
-
 
   return vm;
 }
