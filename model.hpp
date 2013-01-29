@@ -50,6 +50,8 @@ class SandpileModel final
 
     float get_density() const;
     float get_active_site_density() const;
+
+    unsigned int get_num_sites() const;
 };
 
 std::ostream& operator<<( std::ostream& out, const SandpileModel& m );

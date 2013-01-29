@@ -140,6 +140,12 @@ float SandpileModel::get_active_site_density() const
 }
 
 
+unsigned int SandpileModel::get_num_sites() const
+{
+  return size * size;
+}
+
+
 ostream& operator<<( ostream& out, const SandpileModel& m )
 {
   for ( unsigned int y = 0; y < m.size; ++y ) {

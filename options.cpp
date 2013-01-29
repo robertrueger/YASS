@@ -23,6 +23,7 @@
 #include <fstream>
 #include <string>
 #include <stdexcept>
+#include <chrono>
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem/path.hpp>
@@ -43,8 +44,7 @@ Options read_options( const int argc, const char* argv[] )
   ( "help,h", "print this help message and exit" )
   ( "version,V", "print YASS's version and exit" )
   ( "verbose,v", "makes YASS write additional information to stdout" )
-  ( "job-file,J", po::value<fs::path>(), "job file to execute" )
-  ( "output-dir,o", po::value<fs::path>()->default_value( "." ), "output directory" );
+  ( "job-file,J", po::value<fs::path>(), "job file to execute" );
   po::positional_options_description p;
   p.add( "job-file", -1 );
 
@@ -63,7 +63,9 @@ Options read_options( const int argc, const char* argv[] )
     "size of the simulated lattice" )
 
   ( "seed,S",
-    po::value<unsigned int>(),
+    po::value<unsigned int>()->default_value(
+      chrono::system_clock::now().time_since_epoch().count()
+    ),
     "random number generator seed" )
 
   ( "mcs-equil,E",
