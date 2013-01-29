@@ -80,7 +80,7 @@ Options read_options( const int argc, const char* argv[] )
   constset.add_options()
 
   ( "density,d",
-    po::value<float>(),
+    po::value<double>(),
     "constant sand density" );
 
 
@@ -187,7 +187,7 @@ Options read_options( const int argc, const char* argv[] )
         throw logic_error( "no density specified in constant density mode" );
       }
 
-      if ( vm["density"].as<float>() < 0.f ) {
+      if ( vm["density"].as<double>() < 0.f ) {
         throw logic_error( "density must be positive" );
       }
 

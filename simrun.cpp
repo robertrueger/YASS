@@ -36,7 +36,7 @@ void simrun_const( const Options& opts )
   }
 
   cout << "-> Filling to const density" << endl;
-  while ( m.get_density() < opts["density"].as<float>() ) {
+  while ( m.get_density() < opts["density"].as<double>() ) {
     m.add_grain();
   }
   if ( verbose ) {
@@ -54,7 +54,7 @@ void simrun_const( const Options& opts )
   }
 
   cout << "-> Measure the density of active sites while toppling" << endl;
-  float asd_sum = 0.f;
+  double asd_sum = 0.f;
   for ( unsigned int i = 0; i < opts["mcs-measure"].as<unsigned int>(); ++i ) {
     asd_sum += m.get_active_site_density();
     if ( m.topple() ==  false ) {
@@ -66,11 +66,11 @@ void simrun_const( const Options& opts )
     cout << m << endl;
   }
 
-  float asd =
-    asd_sum / static_cast<float>( opts["mcs-measure"].as<unsigned int>() );
+  double asd =
+    asd_sum / static_cast<double>( opts["mcs-measure"].as<unsigned int>() );
 
   cout << "-> Result:" << endl;
-  cout << opts["density"].as<float>() << " " << asd << endl;
+  cout << opts["density"].as<double>() << " " << asd << endl;
 }
 
 
@@ -99,7 +99,7 @@ void simrun_drop(  const Options& opts )
   }
 
   cout << "-> Add grain + topple to measure the density" << endl;
-  float dens_sum = 0.f;
+  double dens_sum = 0.f;
   for ( unsigned int s = 0; s < opts["mcs-measure"].as<unsigned int>(); ++s ) {
     for ( unsigned int i = 0; i < m.get_num_sites(); ++i ) {
       m.add_grain();
@@ -111,8 +111,8 @@ void simrun_drop(  const Options& opts )
     cout << m << endl;
   }
 
-  float dens
-    = dens_sum / static_cast<float>(
+  double dens
+    = dens_sum / static_cast<double>(
         opts["mcs-measure"].as<unsigned int>() * m.get_num_sites()
       );
 

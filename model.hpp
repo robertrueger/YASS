@@ -48,8 +48,8 @@ class SandpileModel final
     void add_grain();
     bool topple();
 
-    float get_density() const;
-    float get_active_site_density() const;
+    double get_density() const;
+    double get_active_site_density() const;
 
     unsigned int get_num_sites() const;
 };

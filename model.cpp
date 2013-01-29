@@ -75,7 +75,7 @@ bool SandpileModel::topple()
     unsigned int x = *ts % size;
     unsigned int y = *ts / size;
 
-    while ( data[ *ts ] >= 4 ) {
+    //while ( data[ *ts ] >= 4 ) {
       data[ *ts ] -= 4;
 
       // bottom neighbor
@@ -113,30 +113,30 @@ bool SandpileModel::topple()
       } else {
         operator()( x - 1, y ) += 1;
       }
-    }
+    //}
   }
 
   return toppling_occurred;
 }
 
 
-float SandpileModel::get_density() const
+double SandpileModel::get_density() const
 {
   return
-    static_cast<float>( accumulate( data.begin(), data.end(), 0 ) ) /
-    static_cast<float>( size * size );
+    static_cast<double>( accumulate( data.begin(), data.end(), 0 ) ) /
+    static_cast<double>( size * size );
 }
 
 
-float SandpileModel::get_active_site_density() const
+double SandpileModel::get_active_site_density() const
 {
   return
-    static_cast<float>(
+    static_cast<double>(
       count_if(
         data.begin(), data.end(),
         []( unsigned int h ) { return h >= 4; }
       )
-    ) / static_cast<float>( size * size );
+    ) / static_cast<double>( size * size );
 }
 
 
