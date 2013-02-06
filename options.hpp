@@ -28,6 +28,11 @@ enum simmode_t {
   MODE_DROP
 };
 
+enum topplemode_t {
+  TOPPLE_SYNC,
+  TOPPLE_ASYNC
+};
+
 typedef boost::program_options::variables_map Options;
 
 Options read_options( const int argc, const char* argv[] );

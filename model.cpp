@@ -26,11 +26,12 @@ using namespace std;
 
 
 SandpileModel::SandpileModel(
-  unsigned int size_init, bool pbc_init, unsigned int rng_seed )
+  unsigned int size_init, bool pbc_init,
+  topplemode_t tm_init, unsigned int rng_seed )
   : size( size_init ), pbc( pbc_init ),
     data( vector<unsigned int>( size_init* size_init, 0 ) ),
-    grain_counter( 0 ),
-    rng( mt19937( rng_seed) ) { }
+    grain_counter( 0 ), rng( mt19937( rng_seed) ),
+    tm( tm_init ) { }
 
 
 unsigned int SandpileModel::operator()( unsigned int x, unsigned int y ) const
@@ -59,13 +60,79 @@ void SandpileModel::add_grain() {
 
 bool SandpileModel::topple()
 {
+  if ( tm == TOPPLE_ASYNC ) {
+    return topple_async();
+  } else {
+    return topple_sync();
+  }
+}
+
+
+void SandpileModel::topple_site( unsigned int l )
+{
+  assert( data[ l ] >= 4 );
+
+  unsigned int x = l % size;
+  unsigned int y = l / size;
+
+  data[ l ] -= 4;
+
+  // bottom neighbor
+  if ( y == 0 ) {
+    if ( pbc ) {
+      operator()( x, size - 1 ) += 1;
+    } else {
+      --grain_counter;
+    }
+  } else {
+    operator()( x, y - 1 ) += 1;
+  }
+
+  // right neighbor
+  if ( x == size - 1 ) {
+    if ( pbc ) {
+      operator()( 0, y ) += 1;
+    } else {
+      --grain_counter;
+    }
+  } else {
+    operator()( x + 1, y ) += 1;
+  }
+
+  // top neighbor
+  if ( y == size - 1 ) {
+    if ( pbc ) {
+      operator()( x, 0 ) += 1;
+    } else {
+      --grain_counter;
+    }
+  } else {
+    operator()( x, y + 1 ) += 1;
+  }
+
+  // left neighbor
+  if ( x == 0 ) {
+    if ( pbc ) {
+      operator()( size - 1, y ) += 1;
+    } else {
+      --grain_counter;
+    }
+  } else {
+    operator()( x - 1, y ) += 1;
+  }
+
+}
+
+
+bool SandpileModel::topple_sync()
+{
   bool toppling_occurred = false;
   vector<unsigned int> toppling_sites;
   toppling_sites.reserve( size * size );
 
   // find toppling sites
   assert( data.size() = size * size );
-  for ( unsigned int i = 0; i < size * size; ++i ) {
+  for ( unsigned int i = 0; i < data.size(); ++i ) {
     if ( data[i] >= 4 ) {
       toppling_sites.push_back( i );
       toppling_occurred = true;
@@ -74,53 +141,23 @@ bool SandpileModel::topple()
 
   // let them topple
   for ( auto ts = toppling_sites.begin(); ts != toppling_sites.end(); ++ts ) {
-    unsigned int x = *ts % size;
-    unsigned int y = *ts / size;
+    topple_site( *ts );
+  }
 
-    data[ *ts ] -= 4;
+  return toppling_occurred;
+}
 
-    // bottom neighbor
-    if ( y == 0 ) {
-      if ( pbc ) {
-        operator()( x, size - 1 ) += 1;
-      } else {
-        --grain_counter;
-      }
-    } else {
-      operator()( x, y - 1 ) += 1;
-    }
 
-    // right neighbor
-    if ( x == size - 1 ) {
-      if ( pbc ) {
-        operator()( 0, y ) += 1;
-      } else {
-        --grain_counter;
-      }
-    } else {
-      operator()( x + 1, y ) += 1;
-    }
+bool SandpileModel::topple_async()
+{
+  bool toppling_occurred = false;
 
-    // top neighbor
-    if ( y == size - 1 ) {
-      if ( pbc ) {
-        operator()( x, 0 ) += 1;
-      } else {
-        --grain_counter;
-      }
-    } else {
-      operator()( x, y + 1 ) += 1;
-    }
-
-    // left neighbor
-    if ( x == 0 ) {
-      if ( pbc ) {
-        operator()( size - 1, y ) += 1;
-      } else {
-        --grain_counter;
-      }
-    } else {
-      operator()( x - 1, y ) += 1;
+  // find toppling sites
+  assert( data.size() = size * size );
+  for ( unsigned int i = 0; i < data.size(); ++i ) {
+    if ( data[i] >= 4 ) {
+      topple_site( i );
+      toppling_occurred = true;
     }
   }
 

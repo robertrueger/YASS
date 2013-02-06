@@ -30,6 +30,7 @@ void simrun_const( const Options& opts )
 
   cout << "-> Creating the model" << endl;
   SandpileModel m( opts["size"].as<unsigned int>(), true,
+                   opts["toppling"].as<topplemode_t>(),
                    opts["seed"].as<unsigned int>() );
   if ( verbose ) {
     cout << m << endl;
@@ -81,6 +82,7 @@ void simrun_drop(  const Options& opts )
 
   cout << "-> Creating the model" << endl;
   SandpileModel m( opts["size"].as<unsigned int>(), false,
+                   opts["toppling"].as<topplemode_t>(),
                    opts["seed"].as<unsigned int>() );
   if ( verbose ) {
     cout << m << endl;

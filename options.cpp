@@ -58,6 +58,10 @@ Options read_options( const int argc, const char* argv[] )
     po::value<simmode_t>()->required(),
     "simulation mode (const, drop)" )
 
+  ( "toppling,t",
+    po::value<topplemode_t>()->default_value( TOPPLE_SYNC, "sync" ),
+    "toppling mode (async, sync)" )
+
   ( "size,s",
     po::value<unsigned int>()->required(),
     "size of the simulated lattice" )
@@ -210,6 +214,21 @@ istream& operator>>( std::istream& in, simmode_t& mode )
     mode = MODE_CONST;
   } else if ( token == "drop" ) {
     mode = MODE_DROP;
+  } else {
+    throw po::validation_error( po::validation_error::invalid_option_value );
+  }
+  return in;
+}
+
+
+istream& operator>>( std::istream& in, topplemode_t& tmode )
+{
+  string token;
+  in >> token;
+  if ( token == "sync" ) {
+    tmode = TOPPLE_SYNC;
+  } else if ( token == "async" ) {
+    tmode = TOPPLE_ASYNC;
   } else {
     throw po::validation_error( po::validation_error::invalid_option_value );
   }

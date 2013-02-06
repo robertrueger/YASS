@@ -24,6 +24,8 @@
 #include <random>
 #include <iosfwd>
 
+#include "options.hpp"
+
 
 class SandpileModel final
 {
@@ -39,9 +41,15 @@ class SandpileModel final
 
     std::mt19937 rng;
 
+    topplemode_t tm;
+    void topple_site( unsigned int l );
+    bool topple_sync();
+    bool topple_async();
+
   public:
 
-    SandpileModel( unsigned int size_init, bool pbc_init, unsigned int rng_seed );
+    SandpileModel( unsigned int size_init, bool pbc_init,
+                   topplemode_t tm_init, unsigned int rng_seed );
 
     unsigned int  operator()( unsigned int x, unsigned int y ) const;
     unsigned int& operator()( unsigned int x, unsigned int y );
