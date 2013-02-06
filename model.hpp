@@ -35,6 +35,7 @@ class SandpileModel final
     bool pbc;
 
     std::vector<unsigned int> data;
+    unsigned int grain_counter;
 
     std::mt19937 rng;
 

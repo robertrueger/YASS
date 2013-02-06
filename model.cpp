@@ -20,7 +20,6 @@
 #include "model.hpp"
 
 #include <assert.h>
-#include <numeric>
 #include <algorithm>
 #include <iostream>
 using namespace std;
@@ -30,6 +29,7 @@ SandpileModel::SandpileModel(
   unsigned int size_init, bool pbc_init, unsigned int rng_seed )
   : size( size_init ), pbc( pbc_init ),
     data( vector<unsigned int>( size_init* size_init, 0 ) ),
+    grain_counter( 0 ),
     rng( mt19937( rng_seed) ) { }
 
 
@@ -50,9 +50,10 @@ unsigned int& SandpileModel::operator()( unsigned int x, unsigned int y )
 
 
 void SandpileModel::add_grain() {
-  data.at(
+  data[
     uniform_int_distribution<unsigned int>(0, data.size() - 1 )( rng )
-  ) += 1;
+  ] += 1;
+  ++grain_counter;
 }
 
 
@@ -63,8 +64,9 @@ bool SandpileModel::topple()
   toppling_sites.reserve( size * size );
 
   // find toppling sites
+  assert( data.size() = size * size );
   for ( unsigned int i = 0; i < size * size; ++i ) {
-    if ( data.at( i ) >= 4 ) {
+    if ( data[i] >= 4 ) {
       toppling_sites.push_back( i );
       toppling_occurred = true;
     }
@@ -75,45 +77,51 @@ bool SandpileModel::topple()
     unsigned int x = *ts % size;
     unsigned int y = *ts / size;
 
-    //while ( data[ *ts ] >= 4 ) {
-      data[ *ts ] -= 4;
+    data[ *ts ] -= 4;
 
-      // bottom neighbor
-      if ( y == 0 ) {
-        if ( pbc ) {
-          operator()( x, size - 1 ) += 1;
-        }
+    // bottom neighbor
+    if ( y == 0 ) {
+      if ( pbc ) {
+        operator()( x, size - 1 ) += 1;
       } else {
-        operator()( x, y - 1 ) += 1;
+        --grain_counter;
       }
+    } else {
+      operator()( x, y - 1 ) += 1;
+    }
 
-      // right neighbor
-      if ( x == size - 1 ) {
-        if ( pbc ) {
-          operator()( 0, y ) += 1;
-        }
+    // right neighbor
+    if ( x == size - 1 ) {
+      if ( pbc ) {
+        operator()( 0, y ) += 1;
       } else {
-        operator()( x + 1, y ) += 1;
+        --grain_counter;
       }
+    } else {
+      operator()( x + 1, y ) += 1;
+    }
 
-      // top neighbor
-      if ( y == size - 1 ) {
-        if ( pbc ) {
-          operator()( x, 0 ) += 1;
-        }
+    // top neighbor
+    if ( y == size - 1 ) {
+      if ( pbc ) {
+        operator()( x, 0 ) += 1;
       } else {
-        operator()( x, y + 1 ) += 1;
+        --grain_counter;
       }
+    } else {
+      operator()( x, y + 1 ) += 1;
+    }
 
-      // left neighbor
-      if ( x == 0 ) {
-        if ( pbc ) {
-          operator()( size - 1, y ) += 1;
-        }
+    // left neighbor
+    if ( x == 0 ) {
+      if ( pbc ) {
+        operator()( size - 1, y ) += 1;
       } else {
-        operator()( x - 1, y ) += 1;
+        --grain_counter;
       }
-    //}
+    } else {
+      operator()( x - 1, y ) += 1;
+    }
   }
 
   return toppling_occurred;
@@ -123,8 +131,7 @@ bool SandpileModel::topple()
 double SandpileModel::get_density() const
 {
   return
-    static_cast<double>( accumulate( data.begin(), data.end(), 0 ) ) /
-    static_cast<double>( size * size );
+    static_cast<double>( grain_counter ) / static_cast<double>( size * size );
 }
 
 
